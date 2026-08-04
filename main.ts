@@ -1415,7 +1415,7 @@ namespace LCD1IN8 {
         pins.digitalWritePin(DigitalPin.P8, 1);
 
         //ST7735R Frame Rate
-        LCD_Writ eReg(0xB1);
+        LCD_WriteReg(0xB1);
         LCD_WriteData_8Bit(0x01);
         LCD_WriteData_8Bit(0x2C);
         LCD_WriteData_8Bit(0x2D);
