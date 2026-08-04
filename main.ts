@@ -1402,7 +1402,7 @@ pins.spiFormat(8, 0)
 pins.spiFrequency(18000000)
 
 //% weight=20 color=#436EEE icon="\uf108"
-namespace LCD1IN8 {
+namespace LCD7735 {
     //% blockId=LCD_Init
     //% blockGap=8
     //% block="LCD1IN8 Init"
