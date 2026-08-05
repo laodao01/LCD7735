@@ -1480,16 +1480,16 @@ namespace LCD7735 {
         //set the X coordinates
         LCD_WriteReg(0x2A);
         LCD_WriteData_8Bit(0x00);
-        LCD_WriteData_8Bit(0x02);
+        LCD_WriteData_8Bit(0x01);
         LCD_WriteData_8Bit(0x00);
-        LCD_WriteData_8Bit(0xa1);
+        LCD_WriteData_8Bit(0xa0);
 
         //set the Y coordinates
         LCD_WriteReg(0x2B);
         LCD_WriteData_8Bit(0x00);
-        LCD_WriteData_8Bit(0x02);
+        LCD_WriteData_8Bit(0x01);
         LCD_WriteData_8Bit(0x00);
-        LCD_WriteData_8Bit(0x81);
+        LCD_WriteData_8Bit(0x80);
 
         LCD_WriteReg(0x2C);
     }
