@@ -1434,8 +1434,6 @@ namespace LCD7735 {
         LCD_WriteReg(0x11);
         control.waitMicros(1000);
 
-        //LCD_WriteReg(0x29);
-        SPIRAM_Set_Mode(SRAM_BYTE_MODE);
     }
 
     //% blockId=LCD_Clear
@@ -1514,8 +1512,6 @@ namespace LCD7735 {
 
     function LCD_SetPoint(Xpoint:number, Ypoint:number, Color:number): void {
         let Addr = (Xpoint + Ypoint * 160)* 2;
-        SPIRAM_WR_Byte(Addr, Color >> 8);
-        SPIRAM_WR_Byte(Addr + 1, Color & 0xff);
     }
 
     //% blockId=Draw_Clear
@@ -1523,18 +1519,6 @@ namespace LCD7735 {
     //% block="Clear Drawing cache"
     //% weight=195
     export function LCD_ClearBuf(): void {
-        let i;
-        SPIRAM_Set_Mode(SRAM_STREAM_MODE);
-        pins.digitalWritePin(DigitalPin.P2, 0);
-        pins.spiWrite(SRAM_CMD_WRITE);
-        pins.spiWrite(0);
-        pins.spiWrite(0);
-        pins.spiWrite(0);
-
-        for (i = 0; i < 160 * 2 * 128; i++) {
-            pins.spiWrite(0xff);
-        }
-        pins.digitalWritePin(DigitalPin.P2, 1);
     }
 
     //% blockId=LCD_Display
@@ -1542,33 +1526,6 @@ namespace LCD7735 {
     //% block="Show Full Screen"
     //% weight=190
     export function LCD_Display(): void {
-        SPIRAM_Set_Mode(SRAM_STREAM_MODE);
-        LCD_SetWindows(0, 0, 160, 128);
-        let rbuf = [];
-        for (let i=0; i<640; i++) {
-            rbuf[i] = 0;
-        }
-
-        let rdata = 0;
-        for (let i = 0; i < 64; i++) { // read 2line
-            pins.digitalWritePin(DigitalPin.P2, 0);
-            pins.spiWrite(SRAM_CMD_READ);
-            pins.spiWrite(0);
-            pins.spiWrite((640*i)>>8);
-            pins.spiWrite((640*i)&0xff);
-            for(let offset = 0; offset<640; offset++){
-                rbuf[offset] = pins.spiWrite(0x00);
-            }
-            pins.digitalWritePin(DigitalPin.P2, 1);
-
-            pins.digitalWritePin(DigitalPin.P12, 1);
-            pins.digitalWritePin(DigitalPin.P16, 0);
-            for (let offset = 0; offset < 640; offset++) {
-                pins.spiWrite(rbuf[offset]);
-            }
-            pins.digitalWritePin(DigitalPin.P16, 1);
-        }
-
         //Turn on the LCD display
         LCD_WriteReg(0x29);
     }
@@ -1782,38 +1739,6 @@ namespace LCD7735 {
                 off++;
         }// Write all
     }
-
-    //spi ram
-    function SPIRAM_Set_Mode(mode:number): void {
-        pins.digitalWritePin(DigitalPin.P2, 0);
-        pins.spiWrite(SRAM_CMD_WRSR);
-        pins.spiWrite(mode);
-        pins.digitalWritePin(DigitalPin.P2, 1);
-    }
-
-    function SPIRAM_RD_Byte(Addr:number): number{
-        let RD_Byte;
-        pins.digitalWritePin(DigitalPin.P2, 0);
-        pins.spiWrite(SRAM_CMD_READ);
-        pins.spiWrite(0X00);
-        pins.spiWrite(Addr >> 8);
-        pins.spiWrite(Addr);
-        RD_Byte = pins.spiWrite(0x00);
-        pins.digitalWritePin(DigitalPin.P2, 1);
-
-        return RD_Byte;
-    }
-
-    function SPIRAM_WR_Byte(Addr:number, Data:number): void {
-        pins.digitalWritePin(DigitalPin.P2, 0);
-        pins.spiWrite(SRAM_CMD_WRITE);
-        pins.spiWrite(0X00);
-        pins.spiWrite(Addr >> 8);
-        pins.spiWrite(Addr);
-        pins.spiWrite(Data);
-        pins.digitalWritePin(DigitalPin.P2, 1);
-    }
-
     function Swop_AB(Point1: number, Point2: number): void {
         let Temp = 0;
         Temp = Point1;
