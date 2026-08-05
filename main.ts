@@ -16,19 +16,6 @@ let FONT_FOREGROUND_COLOR = 0
 let LCD_WIDTH = 160  //LCD width
 let LCD_HEIGHT = 128 //LCD height
 
-// SRAM opcodes
-let SRAM_CMD_WREN = 0x06
-let SRAM_CMD_WRDI = 0x04
-let SRAM_CMD_RDSR = 0x05
-let SRAM_CMD_WRSR = 0x01
-let SRAM_CMD_READ = 0x03
-let SRAM_CMD_WRITE = 0x02
-
-// SRAM modes
-let SRAM_BYTE_MODE = 0x00
-let SRAM_PAGE_MODE = 0x80
-let SRAM_STREAM_MODE = 0x40
-
 enum COLOR {
     WHITE = 0xFFFF,
     BLACK = 0x0000,
@@ -1451,7 +1438,7 @@ namespace LCD7735 {
     //% weight=195
     export function LCD_Filling(Color: COLOR): void{
         LCD_SetWindows(0, 0, LCD_WIDTH, LCD_HEIGHT);
-        LCD_SetColor(Color, LCD_WIDTH + 2, LCD_HEIGHT + 2);
+        LCD_SetColor(Color, LCD_WIDTH, LCD_HEIGHT);
     }
 
 	//% blockId=LCD_SetBL
@@ -1481,9 +1468,10 @@ namespace LCD7735 {
         pins.digitalWritePin(DigitalPin.P12, 1);
         pins.digitalWritePin(DigitalPin.P16, 0);
         let i = 0;
+        let c1 = Buf >> 8;
         for(i = 0; i < len; i++) {
-            pins.spiWrite((Buf >> 8));
-            pins.spiWrite((Buf & 0XFF));
+            pins.spiWrite(c1);
+            pins.spiWrite(Buf);
         }
         pins.digitalWritePin(DigitalPin.P16, 1);
     }
@@ -1492,16 +1480,16 @@ namespace LCD7735 {
         //set the X coordinates
         LCD_WriteReg(0x2A);
         LCD_WriteData_8Bit(0x00);
-        LCD_WriteData_8Bit((Xstart & 0xff) + 1);
-        LCD_WriteData_8Bit(0x00 );
-        LCD_WriteData_8Bit(((Xend - 1) & 0xff) + 1);
+        LCD_WriteData_8Bit(0x0);
+        LCD_WriteData_8Bit(0x00);
+        LCD_WriteData_8Bit(0x9f);
 
         //set the Y coordinates
         LCD_WriteReg(0x2B);
         LCD_WriteData_8Bit(0x00);
-        LCD_WriteData_8Bit((Ystart & 0xff) + 2);
-        LCD_WriteData_8Bit(0x00 );
-        LCD_WriteData_8Bit(((Yend - 1) & 0xff)+ 2);
+        LCD_WriteData_8Bit(0x00);
+        LCD_WriteData_8Bit(0x00);
+        LCD_WriteData_8Bit(0x7f);
 
         LCD_WriteReg(0x2C);
     }
