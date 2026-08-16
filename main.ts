@@ -1384,9 +1384,9 @@ let Font12_Table:number[] =
 ];
 
 
-pins.spiPins(DigitalPin.P15, DigitalPin.P14, DigitalPin.P13)
-pins.spiFormat(8, 0)
-pins.spiFrequency(18000000)
+//pins.spiPins(DigitalPin.P15, DigitalPin.P14, DigitalPin.P13)
+//pins.spiFormat(8, 0)
+//pins.spiFrequency(18000000)
 
 //% weight=20 color=#436EEE icon="\uf108"
 namespace LCD7735 {
@@ -1394,35 +1394,40 @@ namespace LCD7735 {
     //% blockGap=8
     //% block="LCD1IN8 Init"
     //% weight=200
-    export function LCD_Init(): void{
+    export function LCD_Init(): void {
         pins.digitalWritePin(DigitalPin.P8, 1);
+        pins.digitalWritePin(DigitalPin.P12, 1);
+        pins.digitalWritePin(DigitalPin.P16, 1);
+
+        pins.spiPins(DigitalPin.P15, DigitalPin.P14, DigitalPin.P13);
+        pins.spiFormat(8, 0);
+        pins.spiFrequency(18000000);
         control.waitMicros(1000);
         pins.digitalWritePin(DigitalPin.P8, 0);
         control.waitMicros(1000);
         pins.digitalWritePin(DigitalPin.P8, 1);
 
-        LCD_WriteReg(0xB4); //Column inversion
-        LCD_WriteData_8Bit(0x07);
 
-        //ST7735R Power Sequence
-        LCD_WriteReg(0xF0); //Enable test command
-        LCD_WriteData_8Bit(0x01);
-
-        LCD_WriteReg(0xF6); //Disable ram power save mode
-        LCD_WriteData_8Bit(0x00);
-
-        LCD_WriteReg(0x3A); //65k mode
-        LCD_WriteData_8Bit(0x05);
-
-        LCD_WriteReg(0x36); //MX, MY, RGB mode
-        LCD_WriteData_8Bit(0xF7 & 0xA0); //RGB color filter panel
-
-        //sleep out
-        LCD_WriteReg(0x11);
-        control.waitMicros(1000);
-
+        LCD_Cmd([0xb4, 0x07]);
+        LCD_Cmd([0xf0, 0x01]);
+        LCD_Cmd([0xf6, 0x00]);
+        LCD_Cmd([0x3a, 0x05]);
+        LCD_Cmd([0x36, 0xa0]);
+        LCD_Cmd([0x11]);
+        LCD_Cmd([0x29]);
     }
-
+    function LCD_Cmd(dat: number[]): void {
+        pins.digitalWritePin(DigitalPin.P12, 0);
+        pins.digitalWritePin(DigitalPin.P16, 0);
+        pins.spiWrite(dat[0]);
+        dat.forEach((value: number, index: number) => {
+            if (index > 0) {
+                pins.digitalWritePin(DigitalPin.P12, 1);
+            }
+            pins.spiWrite(value);            
+        });
+        pins.digitalWritePin(DigitalPin.P16, 1);
+    }
     //% blockId=LCD_Clear
     //% blockGap=8
     //% block="LCD Clear"
