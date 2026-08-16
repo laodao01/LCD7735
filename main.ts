@@ -70,7 +70,7 @@ namespace LCD7735 {
     //% block="LCD Clear"
     //% weight=195
     export function LCD_Clear(): void{
-        LCD_SetWin(0, 0, LCD_WIDTH-1, LCD_HEIGHT-1);
+        LCD_SetWin(0, LCD_WIDTH - 1, 0, LCD_HEIGHT-1);
         LCD_Filling(0);
     }
 
@@ -80,7 +80,7 @@ namespace LCD7735 {
     //% Color.shadow="colorNumberPicker"
     //% weight=195
     export function LCD_Filling(Color: number): void{
-        LCD_SetWin(0, 0, LCD_WIDTH-1, LCD_HEIGHT-1);
+        LCD_SetWin(0, LCD_WIDTH - 1, 0, LCD_HEIGHT-1);
         LCD_Cmd([0x2c]);
         let cl = LCD_RGB2num(Color);
         pins.digitalWritePin(DigitalPin.P12, 1);
