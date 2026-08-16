@@ -77,7 +77,7 @@ namespace LCD7735 {
     //% blockId=LCD_Filling
     //% blockGap=8
     //% block="Filling Color %Color"
-    //% color.shadow="colorNumberPicker"
+    //% Color.shadow="colorNumberPicker"
     //% weight=195
     export function LCD_Filling(Color: number): void{
         LCD_SetWin(0, 0, LCD_WIDTH-1, LCD_HEIGHT-1);
