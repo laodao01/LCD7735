@@ -15,7 +15,7 @@ namespace LCD7735 {
     let LCD_HEIGHT = 128 //LCD height
     //% blockId=LCD_Init
     //% blockGap=8
-    //% block="LCD1IN8 Init"
+    //% block="LCD初始化"
     //% weight=200
     export function LCD_Init(): void {
         pins.digitalWritePin(DigitalPin.P8, 1);
@@ -67,7 +67,7 @@ namespace LCD7735 {
 
     //% blockId=LCD_Clear
     //% blockGap=8
-    //% block="LCD Clear"
+    //% block="LCD清屏"
     //% weight=195
     export function LCD_Clear(): void{
         LCD_SetWin(0, LCD_WIDTH - 1, 0, LCD_HEIGHT-1);
@@ -76,7 +76,7 @@ namespace LCD7735 {
 
     //% blockId=LCD_Filling
     //% blockGap=8
-    //% block="Filling Color %Color"
+    //% block="用%Color填充屏幕"
     //% Color.shadow="colorNumberPicker"
     //% weight=195
     export function LCD_Filling(Color: number): void{
@@ -92,9 +92,32 @@ namespace LCD7735 {
         pins.digitalWritePin(DigitalPin.P16, 1);
     }
 
+    function LCD_SetDat(buf:Buffer, Color: number, BColor: number): void {
+        LCD_Cmd([0x2c]);
+        let cl = LCD_RGB2num(Color);
+        let bc = LCD_RGB2num(BColor);
+        pins.digitalWritePin(DigitalPin.P12, 1);
+        pins.digitalWritePin(DigitalPin.P16, 0);
+        for (let i = 0; i < buf.length; i++) {
+            let ch = buf[i];
+            for(let j=0;j<8;j++) {
+                if(ch & 0x80) {
+                    pins.spiWrite(cl[0]);
+                    pins.spiWrite(cl[1]);
+                }
+                else {
+                    pins.spiWrite(bc[0]);
+                    pins.spiWrite(bc[1]);
+                }
+                ch = ch << 1;
+            }
+        }
+        pins.digitalWritePin(DigitalPin.P16, 1);
+    }
+
 	//% blockId=LCD_SetBL
     //% blockGap=8
-    //% block="Set back light level %Lev"
+    //% block="设置背光亮度(0-1023) %Lev"
 	//% Lev.min=0 Lev.max=1023
     //% weight=180
     export function LCD_SetBL(Lev: number): void{
@@ -110,7 +133,7 @@ namespace LCD7735 {
 
     //% blockId=LCD_Display
     //% blockGap=8
-    //% block="Show Screen %flag"
+    //% block="屏幕打开显示%flag"
     //% weight=190
     export function LCD_Display(flag : boolean): void {
         //Turn on the LCD display
@@ -119,37 +142,44 @@ namespace LCD7735 {
 
     //% blockId=DisString
     //% blockGap=8
-    //% block="Show String|X %Xchar|Y %Ychar|char %ch|Color %Color"
+    //% block="显示字符串|X %Xchar|Y %Ychar|char %ch|颜色 %Color|背景 %BColor"
     //% Xchar.min=1 Xchar.max=160 Ychar.min=1 Ychar.max=128
     //% Color.shadow="colorNumberPicker"
+    //% BColor.shadow="colorNumberPicker"
     //% weight=100
-    export function DisString(Xchar: number, Ychar: number, ch: Buffer, Color: number): void{
-		let Xpoint = Xchar;
-		let Ypoint = Ychar;
-
-		
-		
+    export function DisString(Xchar: number, Ychar: number, ch: Buffer, Color: number, BColor: number): void{
+        let len = ch.length;
+        let Xend = Xchar + len*8 -1;
+		let Yend = Ychar + 15;
+        LCD_SetWin(Xchar, Xend, Ychar, Yend);
+        LCD_SetDat(ch,Color,BColor);
     }
 
     //% blockId=DisNumber
     //% blockGap=8
-    //% block="Show number|X %Xnum|Y %Ynum|number %num|Color %Color"
+    //% block="显示数字|X %Xnum|Y %Ynum|数字 %num|颜色 %Color|背景 %BColor"
     //% Xnum.min=1 Xnum.max=160 Ynum.min=1 Ynum.max=128
-    //% Color.min=0 Color.max=65535
+    //% Color.shadow="colorNumberPicker"
+    //% BColor.shadow="colorNumberPicker"
     //% weight=100
-    export function DisNumber(Xnum: number, Ynum: number, num: number, Color: number): void{
+    export function DisNumber(Xnum: number, Ynum: number, num: number, Color: number, BColor: number): void{
 		let Xpoint = Xnum;
 		let Ypoint = Ynum;
-        DisString(Xnum, Ynum, Buffer.fromUTF8(num.toString()), Color);
+        let strs = num.toString();
+        let buf = pins.createBuffer(strs.length);
+        for (let i:number = 0; i < strs.length;i++) {
+            buf.setNumber(NumberFormat.Int8LE, i, strs.charCodeAt[i]);
+        }
+        DisString(Xnum, Ynum, buf, Color, BColor);
     }
 
-    function GB_GetDat(addr:number, num:number) : number[] {
+    function GB_GetDat(addr:number, num:number) : Buffer {
         pins.digitalWritePin(DigitalPin.P2, 0);
         pins.spiWrite(0x03);
         pins.spiWrite(addr >> 16);
         pins.spiWrite((addr >> 8) & 0xff);
         pins.spiWrite(addr & 0xff);
-        let res : number[] = [];
+        let res = pins.createBuffer(num);
         for (let i = 0; i < num; i++) {
             res[i] = pins.spiWrite(0x0);
         }
@@ -157,26 +187,33 @@ namespace LCD7735 {
         return(res);
     }
 
-    function GB_GetAscii(ch:string) : number[] {
+    function GB_GetAscii(ch:number) : Buffer {
         let addr = 0x1dd780;
-        let char = ch.charAt(0);
+        let char = ch;
         if (char > 127 || char < 32) {
-            return([0]*16)
+            let res = pins.createBuffer(16);
+            res.fill(0);
+            return (res);
         }
+        char = char - 32;
+        addr = addr + (char << 4);
+        return(GB_GetDat(addr,16));
     }
-    def get_ascii(ch) :
-    addr = 0x1dd780
-    dat = ch[0]
-    if dat > 127 or dat < 32:
-    return b''
-    dat = dat - 32
-    dat = dat << 4
-    addr = addr + dat
-    pin2.write_digital(0)
-    tmp = bytes([0x3]) + addr.to_bytes(3, 'big')
-    spi.write(tmp)
-    r = spi.read(16)
-    pin2.write_digital(1)
-    return (r)
-
+    function GB_GetGB(ch: number[]): Buffer {
+        let addr = 0x2C9D0;
+        let MSB = ch[1];
+        let LSB = ch[0];        
+        if (MSB >= 0xA1 && MSB <= 0Xa9 && LSB >= 0xA1){
+            addr = ((MSB - 0xA1) * 94 + (LSB - 0xA1)) * 32 + addr;
+        }
+        else if (MSB >= 0xB0 && MSB <= 0xF7 && LSB >= 0xA1){
+            addr = ((MSB - 0xB0) * 94 + (LSB - 0xA1) + 846) * 32 + addr;
+        }
+        else {
+            let res = pins.createBuffer(32);
+            res.fill(0);
+            return (res);
+        }
+        return (GB_GetDat(addr, 32));
+    }
 }
