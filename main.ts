@@ -165,10 +165,10 @@ namespace LCD7735 {
     export function DisNumber(Xnum: number, Ynum: number, num: number, Color: number, BColor: number): void{
 		let Xpoint = Xnum;
 		let Ypoint = Ynum;
-        let strs = num.toString();
-        let buf = pins.createBuffer(strs.length);
-        for (let i:number = 0; i < strs.length;i++) {
-            buf.setNumber(NumberFormat.Int8LE, i, strs.charCodeAt[i]);
+        let str = convertToText(num);
+        let buf = pins.createBuffer(str.length);
+        for (let index = 0; index < str.length; index++) {
+            buf.setNumber(NumberFormat.Int8LE, index, str.charCodeAt(index));
         }
         DisString(Xnum, Ynum, buf, Color, BColor);
     }
