@@ -149,10 +149,21 @@ namespace LCD7735 {
     //% weight=100
     export function DisString(Xchar: number, Ychar: number, ch: Buffer, Color: number, BColor: number): void{
         let len = ch.length;
-        let Xend = Xchar + len*8 -1;
-		let Yend = Ychar + 15;
-        LCD_SetWin(Xchar, Xend, Ychar, Yend);
-        LCD_SetDat(ch,Color,BColor);
+        for (let num=0;num<ch.length;num ++) {
+            let bb=ch[num];
+            if (bb & 0x80) {//gb2312
+                num ++;
+                let bb2 = ch[num];
+                LCD_SetWin(Xchar, Xchar + 15, Ychar, Ychar + 15);
+                LCD_SetDat(GB_GetGB([bb, bb2]), Color, BColor);
+                Xchar += 16;
+            }
+            else {
+                LCD_SetWin(Xchar, Xchar + 7, Ychar, Ychar+15);
+                LCD_SetDat(GB_GetAscii(bb), Color, BColor);
+                Xchar += 8;
+            }
+        }
     }
 
     //% blockId=DisNumber
