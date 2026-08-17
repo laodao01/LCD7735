@@ -212,8 +212,8 @@ namespace LCD7735 {
     }
     function GB_GetGB(ch: number[]): Buffer {
         let addr = 0x2C9D0;
-        let MSB = ch[1];
-        let LSB = ch[0];        
+        let MSB = ch[0];
+        let LSB = ch[1];        
         if (MSB >= 0xA1 && MSB <= 0Xa9 && LSB >= 0xA1){
             addr = ((MSB - 0xA1) * 94 + (LSB - 0xA1)) * 32 + addr;
         }
