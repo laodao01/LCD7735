@@ -121,34 +121,14 @@ namespace LCD7735 {
     //% blockGap=8
     //% block="Show String|X %Xchar|Y %Ychar|char %ch|Color %Color"
     //% Xchar.min=1 Xchar.max=160 Ychar.min=1 Ychar.max=128
-    //% Color.min=0 Color.max=65535
+    //% Color.shadow="colorNumberPicker"
     //% weight=100
-    export function DisString(Xchar: number, Ychar: number, ch: string, Color: number): void{
+    export function DisString(Xchar: number, Ychar: number, ch: Buffer, Color: number): void{
 		let Xpoint = Xchar;
 		let Ypoint = Ychar;
-        let Font_Height = 12;
-        let Font_Width = 7;
-		let ch_len = ch.length;
-		let i = 0;
-		for(i = 0; i < ch_len; i++){
-			let ch_asicc =  ch.charCodeAt(i) - 32;//NULL = 32
-			let Char_Offset = ch_asicc * 12;
 
-			if((Xpoint + Font_Width) > 160) {
-				Xpoint = Xchar;
-				Ypoint += Font_Height;
-			}
-
-			// If the Y direction is full, reposition to(Xstart, Ystart)
-			if((Ypoint  + Font_Height) > 128) {
-				Xpoint = Xchar;
-				Ypoint = Ychar;
-			}
-			DisChar_1207(Xpoint, Ypoint, Char_Offset, Color);
-
-			//The next word of the abscissa increases the font of the broadband
-			Xpoint += Font_Width;
-		}
+		
+		
     }
 
     //% blockId=DisNumber
@@ -160,16 +140,43 @@ namespace LCD7735 {
     export function DisNumber(Xnum: number, Ynum: number, num: number, Color: number): void{
 		let Xpoint = Xnum;
 		let Ypoint = Ynum;
-        DisString(Xnum, Ynum, num + "", Color);
+        DisString(Xnum, Ynum, Buffer.fromUTF8(num.toString()), Color);
     }
 
-    function DisChar_1207(Xchar:number, Ychar:number, Char_Offset:number, Color:number): void {
+    function GB_GetDat(addr:number, num:number) : number[] {
+        pins.digitalWritePin(DigitalPin.P2, 0);
+        pins.spiWrite(0x03);
+        pins.spiWrite(addr >> 16);
+        pins.spiWrite((addr >> 8) & 0xff);
+        pins.spiWrite(addr & 0xff);
+        let res : number[] = [];
+        for (let i = 0; i < num; i++) {
+            res[i] = pins.spiWrite(0x0);
+        }
+        pins.digitalWritePin(DigitalPin.P2, 1);
+        return(res);
+    }
 
+    function GB_GetAscii(ch:string) : number[] {
+        let addr = 0x1dd780;
+        let char = ch.charAt(0);
+        if (char > 127 || char < 32) {
+            return([0]*16)
+        }
     }
-    function Swop_AB(Point1: number, Point2: number): void {
-        let Temp = 0;
-        Temp = Point1;
-        Point1 = Point2;
-        Point2 = Temp;
-    }
+    def get_ascii(ch) :
+    addr = 0x1dd780
+    dat = ch[0]
+    if dat > 127 or dat < 32:
+    return b''
+    dat = dat - 32
+    dat = dat << 4
+    addr = addr + dat
+    pin2.write_digital(0)
+    tmp = bytes([0x3]) + addr.to_bytes(3, 'big')
+    spi.write(tmp)
+    r = spi.read(16)
+    pin2.write_digital(1)
+    return (r)
+
 }
