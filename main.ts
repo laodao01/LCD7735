@@ -1,14 +1,3 @@
-/*****************************************************************************
-* | File      	:   1in8LCD.ts
-* | Author      :   hnwangkg-ezio for Waveshare
-* | Function    :   Contorl 1.8inch lcd Show
-* | Info        :
-*----------------
-* | This version:   V2.0
-* | Date        :   2021-01-28
-* | Info        :   for micro:bit v2
-*
-******************************************************************************/
 //% weight=20 color=#436EEE icon="\uf108"
 namespace LCD7735 {
     let LCD_WIDTH = 160  //LCD width
