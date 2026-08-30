@@ -137,7 +137,7 @@ namespace LCD7735 {
     //% Color.shadow="colorNumberPicker"
     //% BColor.shadow="colorNumberPicker"
     //% weight=100
-    export function DisString(Xchar: number, Ychar: number, ch: string, Color: number, BColor: number): void{
+    export function DisString(Xchar: number, Ychar: number, ch: String, Color: number, BColor: number): void{
         let len = ch.length;
 
         for (let num=0;num<len;num ++) {
