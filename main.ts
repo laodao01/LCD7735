@@ -159,7 +159,7 @@ namespace LCD7735 {
         let addr = ch << 5;
         pins.digitalWritePin(DigitalPin.P2, 0);
         pins.spiWrite(0x03);
-        pins.spiWrite(addr >> 16);
+        pins.spiWrite((addr >> 16) & 0xff);
         pins.spiWrite((addr >> 8) & 0xff);
         pins.spiWrite(addr & 0xff);
         let res = pins.createBuffer(32);
