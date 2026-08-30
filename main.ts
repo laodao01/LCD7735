@@ -136,84 +136,40 @@ namespace LCD7735 {
     //% Color.shadow="colorNumberPicker"
     //% BColor.shadow="colorNumberPicker"
     //% weight=100
-    export function DisString(Xchar: number, Ychar: number, ch: Buffer, Color: number, BColor: number): void{
+    export function DisString(Xchar: number, Ychar: number, ch: String, Color: number, BColor: number): void{
         let len = ch.length;
+
         for (let num=0;num<ch.length;num ++) {
-            let bb=ch[num];
-            if (bb & 0x80) {//gb2312
-                num ++;
-                let bb2 = ch[num];
+            let dot = GB_GetDat(ch.charCodeAt(num));
+            if (dot.length > 16) {//gb2312
                 LCD_SetWin(Xchar, Xchar + 15, Ychar, Ychar + 15);
-                LCD_SetDat(GB_GetGB([bb, bb2]), Color, BColor);
+                LCD_SetDat(dot, Color, BColor);
                 Xchar += 16;
             }
             else {
                 LCD_SetWin(Xchar, Xchar + 7, Ychar, Ychar+15);
-                LCD_SetDat(GB_GetAscii(bb), Color, BColor);
+                LCD_SetDat(dot, Color, BColor);
                 Xchar += 8;
             }
         }
     }
 
-    //% blockId=DisNumber
-    //% blockGap=8
-    //% block="显示数字 X %Xnum Y %Ynum 数字 %num|颜色 %Color 背景 %BColor"
-    //% Xnum.min=1 Xnum.max=160 Ynum.min=1 Ynum.max=128
-    //% Color.shadow="colorNumberPicker"
-    //% BColor.shadow="colorNumberPicker"
-    //% weight=100
-    export function DisNumber(Xnum: number, Ynum: number, num: number, Color: number, BColor: number): void{
-		let Xpoint = Xnum;
-		let Ypoint = Ynum;
-        let str = convertToText(num);
-        let buf = pins.createBuffer(str.length);
-        for (let index = 0; index < str.length; index++) {
-            buf.setNumber(NumberFormat.Int8LE, index, str.charCodeAt(index));
-        }
-        DisString(Xnum, Ynum, buf, Color, BColor);
-    }
-
-    function GB_GetDat(addr:number, num:number) : Buffer {
+    function GB_GetDat(addr:number) : Buffer {
         pins.digitalWritePin(DigitalPin.P2, 0);
         pins.spiWrite(0x03);
         pins.spiWrite(addr >> 16);
         pins.spiWrite((addr >> 8) & 0xff);
         pins.spiWrite(addr & 0xff);
-        let res = pins.createBuffer(num);
-        for (let i = 0; i < num; i++) {
+        let res = pins.createBuffer(32);
+        let half = 1;
+        for (let i = 0; i < 32; i++) {
             res[i] = pins.spiWrite(0x0);
+            if(res[i] != 0xff && i < 16) {
+                half = 0;
+            }
         }
         pins.digitalWritePin(DigitalPin.P2, 1);
-        return(res);
-    }
-
-    function GB_GetAscii(ch:number) : Buffer {
-        let addr = 0x1dd780;
-        let char = ch;
-        if (char > 127 || char < 32) {
-            let res = pins.createBuffer(16);
-            res.fill(0);
-            return (res);
-        }
-        char = char - 32;
-        addr = addr + (char << 4);
-        return(GB_GetDat(addr,16));
-    }
-    function GB_GetGB(ch: number[]): Buffer {
-        let addr = 0x2C9D0;
-        let MSB = ch[0];
-        let LSB = ch[1];        
-        if (MSB >= 0xA1 && MSB <= 0Xa9 && LSB >= 0xA1){
-            addr = ((MSB - 0xA1) * 94 + (LSB - 0xA1)) * 32 + addr;
-        }
-        else if (MSB >= 0xB0 && MSB <= 0xF7 && LSB >= 0xA1){
-            addr = ((MSB - 0xB0) * 94 + (LSB - 0xA1) + 846) * 32 + addr;
-        }
-        else {
-            let res = pins.createBuffer(32);
-            res.fill(0);
-            return (res);
-        }
-        return (GB_GetDat(addr, 32));
+        if (half) return (res.slice(16,16));
+        else return(res);
     }
 }
