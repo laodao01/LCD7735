@@ -140,7 +140,7 @@ namespace LCD7735 {
     export function DisString(Xchar: number, Ychar: number, ch: string, Color: number, BColor: number): void{
         let len = ch.length;
 
-        for (let num=0;num<ch.length;num ++) {
+        for (let num=0;num<len;num ++) {
             let dot = GB_GetDat(ch.charCodeAt(num));
             if (dot.length > 16) {//gb2312
                 LCD_SetWin(Xchar, Xchar + 15, Ychar, Ychar + 15);
