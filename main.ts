@@ -8,6 +8,7 @@ namespace LCD7735 {
     //% weight=200
     export function LCD_Init(): void {
         pins.digitalWritePin(DigitalPin.P8, 1);
+        pins.digitalWritePin(DigitalPin.P2, 1);
         pins.digitalWritePin(DigitalPin.P12, 1);
         pins.digitalWritePin(DigitalPin.P16, 1);
 
