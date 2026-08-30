@@ -155,7 +155,8 @@ namespace LCD7735 {
         }
     }
 
-    function GB_GetDat(addr:number) : Buffer {
+    function GB_GetDat(ch:number) : Buffer {
+        let addr = ch << 5;
         pins.digitalWritePin(DigitalPin.P2, 0);
         pins.spiWrite(0x03);
         pins.spiWrite(addr >> 16);
