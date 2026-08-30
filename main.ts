@@ -133,7 +133,7 @@ namespace LCD7735 {
     //% blockId=DisString
     //% blockGap=8
     //% block="显示字符串X %Xchar Y %Ychar char %ch|颜色 %Color 背景 %BColor"
-    //% Xchar.min=1 Xchar.max=160 Ychar.min=1 Ychar.max=128
+    //% Xchar.min=0 Xchar.max=159 Ychar.min=0 Ychar.max=127
     //% Color.shadow="colorNumberPicker"
     //% BColor.shadow="colorNumberPicker"
     //% weight=100
