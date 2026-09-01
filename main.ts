@@ -136,7 +136,7 @@ namespace LCD7735 {
     //% Color.shadow="colorNumberPicker"
     //% BColor.shadow="colorNumberPicker"
     //% weight=100
-    export function DisString(Xchar: number, Ychar: number, ch: Buffer, Color: number, BColor: number): void{
+    export function DisString(ch: Buffer, Xchar: number, Ychar: number, Color: number, BColor: number): void{
         let len = ch.length;
         for (let num=0;num<ch.length;num ++) {
             let bb = ch[num++];
@@ -158,7 +158,7 @@ namespace LCD7735 {
     //% Color.shadow="colorNumberPicker"
     //% BColor.shadow="colorNumberPicker"
     //% weight=100
-    export function DisNumber(Xnum: number, Ynum: number, num: number, Color: number, BColor: number): void{
+    export function DisNumber(num: number, Xnum: number, Ynum: number, Color: number, BColor: number): void{
 		let Xpoint = Xnum;
 		let Ypoint = Ynum;
         let str = convertToText(num);
@@ -167,7 +167,7 @@ namespace LCD7735 {
             buf.setNumber(NumberFormat.Int8LE, index * 2, 0);
             buf.setNumber(NumberFormat.Int8LE, index * 2 + 1, str.charCodeAt(index));
         }
-        DisString(Xnum, Ynum, buf, Color, BColor);
+        DisString(buf, Xnum, Ynum, Color, BColor);
     }
 
     function GB_GetDat(ch: number): Buffer {
