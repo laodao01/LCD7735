@@ -131,7 +131,7 @@ namespace LCD7735 {
 
     //% blockId=DisString
     //% blockGap=8
-    //% block="显示字符串X %Xchar Y %Ychar char %ch|颜色 %Color 背景 %BColor"
+    //% block="显示字符串%ch|X%Xchar Y%Ychar|颜色 %Color 背景 %BColor"
     //% Xchar.min=1 Xchar.max=160 Ychar.min=1 Ychar.max=128
     //% Color.shadow="colorNumberPicker"
     //% BColor.shadow="colorNumberPicker"
@@ -153,7 +153,7 @@ namespace LCD7735 {
 
     //% blockId=DisNumber
     //% blockGap=8
-    //% block="显示数字 X %Xnum Y %Ynum 数字 %num|颜色 %Color 背景 %BColor"
+    //% block="显示数字%num|X%Xnum Y%Ynum|颜色 %Color 背景 %BColor"
     //% Xnum.min=1 Xnum.max=160 Ynum.min=1 Ynum.max=128
     //% Color.shadow="colorNumberPicker"
     //% BColor.shadow="colorNumberPicker"
